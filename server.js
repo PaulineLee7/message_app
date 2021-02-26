@@ -1,87 +1,118 @@
 const express=require('express');
 const bodyParser = require('body-parser');
 var admin = require("firebase-admin");
+const firebase = require('firebase');
+const config = require('config');
 var serviceAccount = require("./serviceAccountKey.json");
 var requestPromise = require('request-promise');
 const app = express();
 var cors= require('cors');
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 5000;
 const jwt = require("jsonwebtoken");
-const cookieParser = require('cookie-parser')
-require('dotenv').config()
+const cookieParser = require('cookie-parser');
+require('dotenv').config();
 
 app.use(bodyParser.json());
 app.use(cors());
-app.use(cookieParser())
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });
 const db = admin.firestore();
-
-const JWT_SECRET_KEY = 'sbghvf6798vuv';
+const FieldValue = require('firebase-admin').firestore.FieldValue;
 
 
 //Creating a token
 const genAccessToken = (res, user) => {
-    const token = jwt.sign(user, JWT_SECRET_KEY, {expiresIn: '300s'});
+    const token = jwt.sign(user, process.env.JWT_SECRET_KEY, {expiresIn: '120s'});
     return res.cookie('token', token, {
       secure: false,
       httpOnly: true,
     });
  };
+
 //Authentication function middleware
-app.use(function(req, res, next) {    
+app.use(function (req, res, next) {    
     const token = req.cookies.token;
-       jwt.verify(token, JWT_SECRET_KEY, (err, user) => {
-           console.log(req.cookies)
+       jwt.verify(token, process.env.JWT_SECRET_KEY, (err, user) => {
+          //console.log(req.cookies)
             req.userSession = user;  
-            console.log(user)       
+            //console.log(user.user)       
             next();
         });
 });
-// app.get('/userInfo', function(req, res) {
-//     if (req.userSession) {
-//       // send back user data from userSession however you want
-//       res.json()
-//     } else {
-//       console.log("fail");// send back nothing or an empty object since the user isn't logged in
-//     }
-// })
+
+app.get('/userInfo', function(req, res) {
+    if (req.userSession) {
+       userInfo=req.userSession;
+       user=userInfo.user;
+       res.json(userInfo);
+       console.log(userInfo);
+    //return res.send(user);
+    } else {
+      console.log("fail");
+    }
+});
+
 //create a new post
  app.post('/Create', async (req, res) => {
+     if(req.userSession){
         try {
                 await db.collection('posts').add({
                 title: req.body.post,
+                upVotes: 0,
                
             });
-        return res.status(200).send();
+            //res.json("Posted")
+        return res.sendStatus(200);
             } catch (error) {
                 console.log(error);
                 return res.status(404).send(error);
             }
+        }else{
+            res.sendStatus(503);
+        }
 });
+
+app.put('/Vote/:id', async (req, res)=>{
+    if(req.userSession){
+    try {
+        const document = db.collection('posts').doc(req.params.id);
+        await document.update({
+             upVotes: FieldValue.increment(1)
+         });
+         return res.sendStatus(200);
+     } catch (error) {
+         console.log(error);
+         return res.sendStatus(500);
+     }
+ }else{
+    res.sendStatus(503);
+    }
+ });
 
 //Get posts
 app.get('/api/read', async (req, res) => {
     try {
         const posts = [];
-        const querySnapshot = await db.collection('posts').get()
+        const querySnapshot = await db.collection('posts').get();
         querySnapshot.forEach((doc) => {
-          const { title, comment} = doc.data();
+          const { title, comment, upVotes} = doc.data();
           posts.push({
             key: doc.id,
             doc, 
             title,
+            upVotes,
             comment
           }); 
        
-    });return res.status(200).json(posts)  
+    });return res.status(200).json(posts);  
         }
         catch (error) {
             console.log(error);
-            return res.status(500).send(error);
+            return res.sendStatus(500);
        }
     });
 
@@ -96,30 +127,34 @@ app.get('/api/readpost/:id', async (req, res) => {
         return res.status(200).send(response);
         } catch (error) {
         console.log(error);
-        return res.status(500).send(error);
+        return res.sendStatus(500);
     }
 });
 
   
 //Update post
 app.put('/Update/:id', async (req, res) => {
+    if(req.userSession){
         try {
            const document = db.collection('posts').doc(req.params.id);
            await document.update({
                 title: req.body.post,
             });
-            return res.status(200).send();
+            return res.sendStatus(200);
         } catch (error) {
             console.log(error);
             return res.status(500).send(error);
         }
-    });
+    }else{
+        res.sendStatus(503);
+    }
+});
 
 //read comments
 app.get('/Read/:id/:id', async (req, res) => {
     try {
         const posts = [];
-        const querySnapshot = await db.collection('posts').doc(req.params.id).collection('comments').get()
+        const querySnapshot = await db.collection('posts').doc(req.params.id).collection('comments').get();
         querySnapshot.forEach((doc) => {
           const { title, comment} = doc.data();
           posts.push({
@@ -129,7 +164,7 @@ app.get('/Read/:id/:id', async (req, res) => {
             comment
           }); 
        
-    });return res.status(200).json(posts)  
+    });return res.status(200).json(posts);  
         }
         catch (error) {
             console.log(error);
@@ -140,42 +175,42 @@ app.get('/Read/:id/:id', async (req, res) => {
 
 // Comment on a post
 app.post('/Comment/:id', async (req, res) => {
+    if(req.userSession){
     try {   
-        // await db.collection('posts').doc(req.params.id).update({
-        //     comment: req.body.post,
         await db.collection('posts').doc(req.params.id).collection('comments').add({
             comment: req.body.post,
-        }) 
-        return res.status(200).send();
+        }); 
+        return res.sendStatus(200);
     } catch (error) {
         console.log(error);
         return res.status(500).send(error);
     }
+}else{
+    res.sendStatus(503);
+}
 });
 
 //Delete a post
 app.delete('/api/delete/:id', async (req, res) => {
+    if(req.userSession){
         try {
             const document = db.collection('posts').doc(req.params.id);
             await document.delete();
-            return res.status(200).send();
+            return res.sendStatus(200);
         } catch (error) {
             console.log(error);
             return res.status(500).send(error);
         }
-    });
-
-//VmpKMGIxTXlSa2hWV0d4V1lteHdjRlJVU2xOT2JHUlhXVE5vYTJKVldrcFdWbEYzVUZFOVBR
+    }else{
+        res.sendStatus(503);
+    }
+});
 
 app.get('/login', (req,res)=> {
-    //res.setHeader('Set-Cookie', 'loggedIn=true');
-    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signInGate?response_type=code&locale=en&countryCode=US&client_id=3694457r8f&redirect_uri=http://localhost:5000/hi&state=CUSTOM_TOKEN&goBackURL=http://localhost:3000`);
+    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signInGate?response_type=code&locale=en&countryCode=US&client_id=3694457r8f&redirect_uri=http://localhost:5000/callback&state=CUSTOM_TOKEN&goBackURL=http://localhost:3000`);
 });  
     
-
-app.get('/hi', (req, res)=>{
-    //if(req.session.isLoggedIn=true){
-console.log('hello');
+app.get('/callback', (req, res)=>{
     var options = {
         url: `https://${req.query.auth_server_url}/auth/oauth2/token`,
         method: 'POST',
@@ -192,7 +227,6 @@ console.log('hello');
         }    
     };
    
-    //This example assumes a promise based request library
     requestPromise(options)
     .then(response => {
         let json = JSON.parse(response);
@@ -211,10 +245,7 @@ console.log('hello');
     .then(response => {
         let profile = extractProfileInfo(response, json.access_token);
     });
-        //You now have readable user profile information as a JSON object in 'profile'
-    //});
-//});
-//});
+        
     const parseXML = require("xml2js").parseString; //Example XML Parsing library
 
     function extractProfileInfo(body, accessToken) {
@@ -249,37 +280,29 @@ console.log('hello');
                             "firstName": (fname || " "),
                             "profileImg": profileImg
                         };
-                        genAccessToken(res, {user: profileJSON.guid});
-                        res.status(301).redirect('http://localhost:3000/Login')
+                        genAccessToken(res, {user: profileJSON.guid, email: profileJSON.email, 
+                            firstName: profileJSON.firstName, username: profileJSON.name});
+                        res.status(301).redirect('http://localhost:3000/Login');
                         return resolve(profileJSON);
                     } catch(ex) {
                         return reject("parse: " + ex);
                     }
                 } 
-              
             });
         });
     }
 }); 
 });
 
-// app.post('/Login', (req, res)=>{
-//     const token = genAccessToken({ userName: guid});
-//     res.json(token);
-// });
-
 app.get('/logout', (req,res)=> {
+    res.clearCookie('token');
     res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signOutGate?client_id=3694457r8f&state=CUSTOM_TOKEN&signOutURL=http://localhost:3000/log_out`);
 }); 
 
-app.get('/log_out', (req, res)=>{
+app.get('/log_out', (req, res)=>{ 
     res.status(301).redirect('/log_out');
-})
-// app.get('/', (req,res)=> {
-//     res.redirect(`http://localhost:${config.fusionAuthPort}/oauth2/authorize?client_id=${config.clientID}&redirect_uri=${config.redirectURI}&response_type=code`);
-// });
+});
 
-//sign out url: https://stg-account.samsung.com/accounts/v1/STWS/signOutGate?client_id=3694457r8f&state=CUSTOM_TOKEN&signOutURL=http://localhost:3000/logout/complete
-  app.listen(port, (req,res)=>{
-    console.info(`Running on ${port}`)
-  })
+app.listen(port, (req,res)=>{
+    console.info(`Running on ${port}`);
+});
