@@ -37,3 +37,18 @@
     transform: rotate(360deg);
   }
 }
+
+.login-form {
+  width: 20rem;
+  max-width: 90%;
+  margin: auto;
+  display: block;
+}
+
+li.nav-item a{
+  color:white;
+}
+
+li.nav-item a:hover {
+  color: lightblue;
+}
