@@ -26,7 +26,7 @@ const FieldValue = require('firebase-admin').firestore.FieldValue;
 
 //Creating a token
 const genAccessToken = (res, user) => {
-    const token = jwt.sign(user, process.env.JWT_SECRET_KEY, {expiresIn: '120s'});
+    const token = jwt.sign(user, process.env.JWT_SECRET_KEY, {expiresIn: '300s'});
     return res.cookie('token', token, {
       secure: false,
       httpOnly: true,
@@ -49,7 +49,7 @@ app.get('/userInfo', function(req, res) {
        userInfo=req.userSession;
        user=userInfo.user;
        res.json(userInfo);
-       console.log(userInfo);
+       //console.log(req.userSession.user);
     //return res.send(user);
     } else {
       console.log("fail");
@@ -62,11 +62,12 @@ app.get('/userInfo', function(req, res) {
         try {
                 await db.collection('posts').add({
                 title: req.body.post,
+                creator: req.userSession.user,
+                description: req.body.description,
                 upVotes: 0,
                
             });
-            //res.json("Posted")
-        return res.sendStatus(200);
+            res.redirect('http://localhost:3000/')
             } catch (error) {
                 console.log(error);
                 return res.status(404).send(error);
@@ -99,12 +100,14 @@ app.get('/api/read', async (req, res) => {
         const posts = [];
         const querySnapshot = await db.collection('posts').get();
         querySnapshot.forEach((doc) => {
-          const { title, comment, upVotes} = doc.data();
+          const { title, comment, upVotes, creator, description } = doc.data();
           posts.push({
             key: doc.id,
             doc, 
             title,
+            description,
             upVotes,
+            creator,
             comment
           }); 
        
@@ -139,6 +142,7 @@ app.put('/Update/:id', async (req, res) => {
            const document = db.collection('posts').doc(req.params.id);
            await document.update({
                 title: req.body.post,
+                description: req.body.description,
             });
             return res.sendStatus(200);
         } catch (error) {
@@ -151,16 +155,17 @@ app.put('/Update/:id', async (req, res) => {
 });
 
 //read comments
-app.get('/Read/:id/:id', async (req, res) => {
+app.get('/Read/:id', async (req, res) => {
     try {
         const posts = [];
         const querySnapshot = await db.collection('posts').doc(req.params.id).collection('comments').get();
         querySnapshot.forEach((doc) => {
-          const { title, comment} = doc.data();
+          const { title, comment, creator} = doc.data();
           posts.push({
             key: doc.id,
             doc, 
             title,
+            creator,
             comment
           }); 
        
@@ -173,14 +178,49 @@ app.get('/Read/:id/:id', async (req, res) => {
     });
 
 
+
+    //read one comment
+app.get('/ReadComment/:id/:commentid', async (req, res) => {
+    try {
+        const document = db.collection('posts').doc(req.params.id).collection('comments').doc(req.params.commentid);
+        let item = await document.get();
+        let response = item.data();
+        
+        return res.status(200).send(response);
+        } catch (error) {
+        console.log(error);
+        return res.sendStatus(500);
+    }
+});
+
+//Update one comment
+app.put('/update/comment/:id/:commentid', async (req, res) => {
+    if(req.userSession){
+        try {
+            const document = db.collection('posts').doc(req.params.id).collection('comments').doc(req.params.commentid);
+            await document.update({
+                comment: req.body.post,
+            });
+            return res.sendStatus(200);
+        } catch (error) {
+            console.log(error);
+            return res.status(500).send(error);
+        }
+    }else{
+        res.sendStatus(503);
+    }
+}); 
+
 // Comment on a post
 app.post('/Comment/:id', async (req, res) => {
     if(req.userSession){
     try {   
         await db.collection('posts').doc(req.params.id).collection('comments').add({
             comment: req.body.post,
+            creator: req.userSession.user,
         }); 
-        return res.sendStatus(200);
+        // return res.sendStatus(200);
+        res.status(301).redirect('http://localhost:3000/');
     } catch (error) {
         console.log(error);
         return res.status(500).send(error);
@@ -196,7 +236,8 @@ app.delete('/api/delete/:id', async (req, res) => {
         try {
             const document = db.collection('posts').doc(req.params.id);
             await document.delete();
-            return res.sendStatus(200);
+            res.status(301).redirect('http://localhost:3000/');
+            //return res.sendStatus(200);
         } catch (error) {
             console.log(error);
             return res.status(500).send(error);
@@ -205,6 +246,27 @@ app.delete('/api/delete/:id', async (req, res) => {
         res.sendStatus(503);
     }
 });
+
+//Delete a posts comment
+app.delete('/delete/comment/:id/:commentid', async (req, res) => {
+    //if(req.userSession){
+        try {
+            //const document = db.collection('posts').doc(req.params.id).collection('comments').doc('84r52vPvg9APRBqUaXkx');
+            const document = db.collection('posts').doc(req.params.id).collection('comments').doc(req.params.commentid);
+            await document.delete();
+            //res.status(301).redirect('http://localhost:3000/');
+            //res.status(301).redirect('http://localhost:3000/');
+            //console.log(res);
+            return res.sendStatus(200);
+        } catch (error) {
+            console.log(error);
+            return res.status(500).send(error);
+        }
+    // }else{
+    //     res.sendStatus(503);
+    // }
+});
+
 
 app.get('/login', (req,res)=> {
     res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signInGate?response_type=code&locale=en&countryCode=US&client_id=3694457r8f&redirect_uri=http://localhost:5000/callback&state=CUSTOM_TOKEN&goBackURL=http://localhost:3000`);
@@ -282,7 +344,7 @@ app.get('/callback', (req, res)=>{
                         };
                         genAccessToken(res, {user: profileJSON.guid, email: profileJSON.email, 
                             firstName: profileJSON.firstName, username: profileJSON.name});
-                        res.status(301).redirect('http://localhost:3000/Login');
+                        res.status(301).redirect('http://localhost:3000/');
                         return resolve(profileJSON);
                     } catch(ex) {
                         return reject("parse: " + ex);
@@ -296,12 +358,12 @@ app.get('/callback', (req, res)=>{
 
 app.get('/logout', (req,res)=> {
     res.clearCookie('token');
-    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signOutGate?client_id=3694457r8f&state=CUSTOM_TOKEN&signOutURL=http://localhost:3000/log_out`);
+    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signOutGate?client_id=3694457r8f&state=CUSTOM_TOKEN&signOutURL=http://localhost:3000/`);
 }); 
 
-app.get('/log_out', (req, res)=>{ 
-    res.status(301).redirect('/log_out');
-});
+// app.get('/log_out', (req, res)=>{ 
+//     res.status(301).redirect('http://localhost:3000/');
+// });
 
 app.listen(port, (req,res)=>{
     console.info(`Running on ${port}`);
