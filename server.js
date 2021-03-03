@@ -1,5 +1,6 @@
 const express=require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 var admin = require("firebase-admin");
 const firebase = require('firebase');
 const config = require('config');
@@ -16,6 +17,7 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "build")));
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
@@ -26,7 +28,7 @@ const FieldValue = require('firebase-admin').firestore.FieldValue;
 
 //Creating a token
 const genAccessToken = (res, user) => {
-    const token = jwt.sign(user, process.env.JWT_SECRET_KEY, {expiresIn: '300s'});
+    const token = jwt.sign(user, process.env.JWT_SECRET_KEY, {expiresIn: '600s'});
     return res.cookie('token', token, {
       secure: false,
       httpOnly: true,
@@ -49,10 +51,9 @@ app.get('/userInfo', function(req, res) {
        userInfo=req.userSession;
        user=userInfo.user;
        res.json(userInfo);
-       //console.log(req.userSession.user);
-    //return res.send(user);
+       
     } else {
-      console.log("fail");
+      console.log("Not Logged on");
     }
 });
 
@@ -60,14 +61,14 @@ app.get('/userInfo', function(req, res) {
  app.post('/Create', async (req, res) => {
      if(req.userSession){
         try {
-                await db.collection('posts').add({
-                title: req.body.post,
+                await db.collection('posts').add({  
+                title: req.body.post,    
                 creator: req.userSession.user,
                 description: req.body.description,
                 upVotes: 0,
                
             });
-            res.redirect('http://localhost:3000/')
+            res.redirect(process.env.REDIRECT)
             } catch (error) {
                 console.log(error);
                 return res.status(404).send(error);
@@ -220,7 +221,7 @@ app.post('/Comment/:id', async (req, res) => {
             creator: req.userSession.user,
         }); 
         // return res.sendStatus(200);
-        res.status(301).redirect('http://localhost:3000/');
+        res.status(301).redirect(process.env.REDIRECT);
     } catch (error) {
         console.log(error);
         return res.status(500).send(error);
@@ -236,8 +237,7 @@ app.delete('/api/delete/:id', async (req, res) => {
         try {
             const document = db.collection('posts').doc(req.params.id);
             await document.delete();
-            res.status(301).redirect('http://localhost:3000/');
-            //return res.sendStatus(200);
+            res.status(301).redirect(process.env.REDIRECT);
         } catch (error) {
             console.log(error);
             return res.status(500).send(error);
@@ -249,22 +249,19 @@ app.delete('/api/delete/:id', async (req, res) => {
 
 //Delete a posts comment
 app.delete('/delete/comment/:id/:commentid', async (req, res) => {
-    //if(req.userSession){
+    if(req.userSession){
         try {
-            //const document = db.collection('posts').doc(req.params.id).collection('comments').doc('84r52vPvg9APRBqUaXkx');
             const document = db.collection('posts').doc(req.params.id).collection('comments').doc(req.params.commentid);
             await document.delete();
-            //res.status(301).redirect('http://localhost:3000/');
-            //res.status(301).redirect('http://localhost:3000/');
-            //console.log(res);
+            
             return res.sendStatus(200);
         } catch (error) {
             console.log(error);
             return res.status(500).send(error);
         }
-    // }else{
-    //     res.sendStatus(503);
-    // }
+    }else{
+        res.sendStatus(503);
+    }
 });
 
 
@@ -344,7 +341,8 @@ app.get('/callback', (req, res)=>{
                         };
                         genAccessToken(res, {user: profileJSON.guid, email: profileJSON.email, 
                             firstName: profileJSON.firstName, username: profileJSON.name});
-                        res.status(301).redirect('http://localhost:3000/');
+                        res.redirect(process.env.REDIRECT);
+                        //res.status(301).redirect('http://localhost:3000');
                         return resolve(profileJSON);
                     } catch(ex) {
                         return reject("parse: " + ex);
@@ -361,10 +359,11 @@ app.get('/logout', (req,res)=> {
     res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signOutGate?client_id=3694457r8f&state=CUSTOM_TOKEN&signOutURL=http://localhost:3000/`);
 }); 
 
-// app.get('/log_out', (req, res)=>{ 
-//     res.status(301).redirect('http://localhost:3000/');
-// });
 
 app.listen(port, (req,res)=>{
     console.info(`Running on ${port}`);
+});
+
+app.get(`/*`, function(req, res) {
+    res.sendFile(path.join(__dirname, "build", "index.html"));
 });
