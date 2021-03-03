@@ -11,8 +11,7 @@ import Show from './Show';
 import Comment from './Comment';
 import Read from './Read';
 import Edit from './Edit'
-// import Login from './Login';
-// import Log_out from './Log_out';
+
 const LOCAL_ENDPOINT = process.env.NODE_ENV !== "production" ? "http://localhost:5000" : "";
 
 class Main extends Component {  
@@ -29,15 +28,14 @@ class Main extends Component {
         .then(res => {
             return res.json()
         }).then(user=>{
-           //console.log(user);
             this.setState({
                user
-              });   //console.log(this.state.user)
+              });   
         })
       };
-//change to is logged in
+
       renderNav = () =>{
-         if(this.state.user.firstName == "tecace"){
+         if(this.state.user.user){
         return <nav class="navbar navbar-dark bg-dark">
          <a class="navbar-brand" href="http://localhost:3000">Message Board</a>
          <ul class="nav justify-content-end">
@@ -80,10 +78,6 @@ render(){
         <Read {...props} user={this.state.user} />)}/>
     <Route path='/Edit/:id' render={(props) => (
         <Edit {...props} user={this.state.user} />)}/>
-    {/* <Route path='/Login' render={(props) => (
-        <Login {...props} user={this.state.user} />)}/>
-    <Route path='/log_out' render={(props) => (
-        <Log_out {...props} user={this.state.user} />)}/> */}
     <Route path='/Vote/:id'render={(props) => (
         <Show {...props} user={this.state.user} />)}/>
     </div>
@@ -92,23 +86,3 @@ render(){
   };
 
 export default Main
-
-
-// ReactDOM.render(
-// <Router>
-//     <div>
-// <Route exact path='/' component={App} />
-{/* <Route path='/Create' component={Create} />
-<Route path='/Update/:id' component={Update} />
-<Route path='/Show/:id' component={Show} />
-<Route path='/Comment/:id' component={Comment} />
-<Route path='/Read/:id/:id' component={Show} />
-<Route path='/Read' component={Read} />
-<Route path='/Vote/:id' component={Show} />
-<Route path='/Login' component={Login} />
-<Route path='/log_out' component={log_out} /> */}
-
-//     </div>
-//   </Router>,
-//   document.getElementById('root')
-// );

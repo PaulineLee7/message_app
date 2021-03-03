@@ -1,7 +1,4 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import { withRouter } from "react-router";
-const LOCAL_ENDPOINT = process.env.NODE_ENV !== "production" ? "http://localhost:5000" : ""; 
 
 class Comment extends Component {
 
@@ -17,12 +14,6 @@ class Comment extends Component {
           id: this.props.match.params.id,
         };
       }
-
-      // onChange = (e) => {
-      //   const state = this.state
-      //   state[e.target.name] = e.target.value;
-      //   this.setState(state);
-      // }
  
     commentSubmit = async e => {
         var id = this.state.id;
@@ -54,9 +45,9 @@ class Comment extends Component {
                   <div class="form-group">
                   <h5>Comment</h5>
                   <br/>
-                    <textArea type="text" class="form-control" name="description" value={this.state.comment} onChange={e => this.setState({ post: e.target.value })} placeholder="Comment" />
+                    <textArea type="text" class="form-control" required="required" minLength="1" name="description" value={this.state.comment} onChange={e => this.setState({ post: e.target.value })} placeholder="Comment" />
                   </div>
-                  <button type="submit" class="btn btn-success">Post Comment</button>
+                  <button type="submit" class="btn btn-primary">Post Comment</button>
                 </form>
               </div>
             </div>

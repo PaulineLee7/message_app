@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import "bootstrap/dist/css/bootstrap.css";
-import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import './App.css'
-const LOCAL_ENDPOINT = process.env.NODE_ENV !== "production" ? "http://localhost:5000" : ""; 
- 
+// import ReactGA from 'react-ga';
+// const TRACKING_ID = ""; // YOUR_OWN_TRACKING_ID
+// ReactGA.initialize(TRACKING_ID);
+
 class App extends Component {
   constructor(props){
     super(props);
@@ -35,7 +36,7 @@ class App extends Component {
             description: result.description,
             creator: result.creator,
             isLoading: false
-          });console.log(result)
+          });
         },
         (error) => {
           this.setState({
@@ -48,21 +49,17 @@ class App extends Component {
   render() {
     return (
      <div class= "card">
-     
-   
-              {/* <h3 class="card-header">Posts</h3> */}
+
                  {this.state.posts.map(post =>
                   <div class= "card">
-                  <div class="card-header"><Link to={`/Show/${post.key}`}style={{ color: 'black', textDecoration:'none', }}class="font-weight-bold">{post.title}</Link></div>
+                  <div class="card-header"><Link to={`/Show/${post.key}`} style={{ color: 'black', textDecoration:'none', }} class="font-weight-bold">{post.title}</Link></div>
                   <div class="card-body">
                   {post.description}
                   </div>
                   </div>
                   
                 )} 
-             
-            
-            
+                <div class="card-footer"> </div>
     </div>
     );
   }

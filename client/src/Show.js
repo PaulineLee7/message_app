@@ -86,20 +86,6 @@ class Show extends Component {
       });
       this.props.history.go();
     };
-    // downVoteSubmit = async e => {
-    //   var id = this.state.id
-    //   e.preventDefault();
-    //   const response = await fetch('/Vote/' + id, { 
-    //     method: 'PUT',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-
-    //   }).catch((error)=>{
-    //     console.error("Error voting", error);
-    //   });
-  
-    // };
 
       deleteSubmit = async e => {
         var id = this.state.id
@@ -119,39 +105,21 @@ class Show extends Component {
     this.props.history.goBack();
     }
 
-  //   renderNav = () => {
-  
-  //     if(this.props.user.user && this.props.user.user == this.state.post.creator){
-  //     return <div class="card-body"> {this.state.posts.map(post =>
-        
-  //       <ul class="nav-item dropdown">
-  //       <a class="nav-link dropdown-toggle" color='black'data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false"></a>
-  //       <div class="dropdown-menu">
-  //       <a class="dropdown-item" href=""><Link to={`/Read/${this.state.id}/${post.key}`}>Delete</Link></a>
-  //       <a class="dropdown-item" href=""><Link to={`/Edit/${this.state.id}/${post.key}`}>Edit</Link></a>
-
-  //       </div>
-  //       </ul>
-        
-  //     )}              
-  //   </div>
-  
-  //   }
-  // }
-  // Dropdown for edit/delete comments
-  renderNav = () => {
+  renderDrop = () => {
    return(this.state.posts.map((post) => {
    
     if (this.props.user.user && this.props.user.user==post.creator) {
-      return <ul class="nav-item dropdown">
-      <div class="card-body">{post.comment} </div>
-      <a class="nav-link dropdown-toggle" color='black'data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false"></a>
-      <div class="dropdown-menu">
-      <a class="dropdown-item" href=""><Link to={`/Read/${this.state.id}/${post.key}`}>Delete</Link></a>
-      <a class="dropdown-item" href=""><Link to={`/Edit/${this.state.id}/${post.key}`}>Edit</Link></a>
+      return  <div class="card"><nav class="navbar navbar-expand-lg navbar-light bg-light" style={{ color: 'black', textDecoration:'none'}}>
+      {post.comment}
+     <ul class="nav-item dropdown" style={{color: 'black', textDecoration:'none', textAlign: "right", margin: 0, paddingLeft: 30}}>
+      <a class="nav-link dropdown-toggle" style={{textAlign: "right"}} color='black' data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"></a>
+      <div class="dropdown-menu" style={{ color: 'black', textDecoration:'none'}}>
+      <a class="dropdown-item" ><Link to={`/Read/${this.state.id}/${post.key}`}style={{ color: 'black', textDecoration:'none', }}>Delete</Link></a>
+      <a class="dropdown-item" ><Link to={`/Edit/${this.state.id}/${post.key}`}style={{ color: 'black', textDecoration:'none', }}>Edit</Link></a>
      </div>
       </ul>
-      
+      </nav>
+      </div>
       }else{
         return <div class="card" >
         <div class="card-body">{post.comment} </div>
@@ -161,33 +129,12 @@ class Show extends Component {
    )
   }
 
-  // renderNav = () => {
-  //   let that = this;
-  //   this.state.posts.map(function(post) {
-    
-  //   if (that.props.user.user && that.props.user.user == post.creator) {
-  //      return <tbody> 
-  //      <td>
-  //      <ul class="nav-item dropdown">
-  //      <a class="nav-link dropdown-toggle" color='black'data-toggle="dropdown" href="" role="button" aria-haspopup="true" aria-expanded="false"></a>
-  //      <div class="dropdown-menu">
-  //      <a class="dropdown-item" href=""><Link to={`/Read/${this.state.id}/${post.key}`}>Delete</Link></a>
-  //      <a class="dropdown-item" href=""><Link to={`/Edit/${this.state.id}/${post.key}`}>Edit</Link></a>
-  //     </div>
-  //      </ul>
-  //      </td>       
-  //   </tbody>
-  //      }
-  //   });
-  // }
     renderButtons = () =>{
   
-      // if(this.props.user.firstName == 'tecace'){
         if(this.props.user.user && this.props.user.user == this.state.post.creator){
-      return <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
-            <div class="btn-group mr-2" role="group" aria-label="First group">
-            <Link to={`/Update/${this.state.id}`} class="btn btn-outline-success">Edit</Link>&nbsp; 
-            <form onSubmit={this.deleteSubmit}>
+      return <div class="contain">
+       <form onSubmit={this.deleteSubmit}>
+            <Link to={`/Update/${this.state.id}`} class="btn btn-outline-primary">Edit</Link> 
             <button type="submit" class="btn btn-transparent" data-show="true" data-toggle="modal" data-target="#exampleModal" ><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
               <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
               <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
@@ -195,21 +142,20 @@ class Show extends Component {
             </button>
             </form>           
             </div>
-            </div>
+       
     }
   }
 
   renderComment = () => {
     if(this.props.user.user){
-      return <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+      return <div class="contain">
       <div class="btn-group mr-2" role="group" aria-label="First group">
-      <Link to={`/Comment/${this.state.id}`} class="btn btn-outline-primary">Comment</Link>&nbsp;
+      <Link to={`/Comment/${this.state.id}`} class="btn btn-outline-dark">Comment</Link>&nbsp;
       </div>
       </div>
     }
 
   }
-
   renderVotes = () =>{
     if(this.props.user.user){
       return <form onSubmit={this.voteSubmit}>
@@ -222,47 +168,33 @@ class Show extends Component {
     }
   
 
-    render() {
-
-   //   let {responseToPost}=this.state;
-     
+    render() {     
       return (
-    
-        
-       <div class="contain">
-          
-            <div class="card">
-            
-                {/* <form onSubmit={this.voteSubmit}> */}
-                <div class="card-header"> <div class="font-weight-bold"> {this.state.post.title}</div></div>
 
-                <div class="card-body">{this.state.post.description}
-                 {this.renderVotes()} {this.state.post.upVotes}  upvotes</div>
-              
-                <div class="card-header">Comments </div>
-                {this.renderNav()}
-                 {/* {this.state.posts.map(post =>
-                  <div class="card" >
-                  
-                  <div class="card-body">{post.comment} 
-                  {post.creator}</div>
-                  </div>
-                )}               */}
-    
-               
+       <div class="contain">
+            <div class="card">
+                <div class="card-header"> <div class="font-weight-bold"> {this.state.post.title}</div></div>
+                <div class="card-body" style={{textAlign: "left"}}>{this.state.post.description}<br/>
+                <div class="font-weight-bold" style={{fontSize: 12, textAlign: "right"}}>{this.renderVotes()} {this.state.post.upVotes}  upvotes </div>
+                </div>
+                <div class="card-header">Comments </div>   
+                {this.renderDrop()} 
             </div>
-      <br/>
+            <br/>
+            <div class="contain" style={{padding: '1rem', paddingBottom: "3rem", textAlign: "left"}}>
             <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
             <div class="btn-group mr-2" role="group" padding="5px" aria-label="First group">
-          {this.renderComment()} {this.renderButtons()}
+              {this.renderComment()} {this.renderButtons()}
             </div>
             
            </div>
-         </div>
+           </div>
+           
+      </div>
      
       );
     }
   }
    export default withRouter(Show)
-  //export default Show;
+
 

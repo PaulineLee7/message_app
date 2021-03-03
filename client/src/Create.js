@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
 import "bootstrap/dist/css/bootstrap.css";
-import { Redirect } from 'react-router-dom';
-const LOCAL_ENDPOINT = process.env.NODE_ENV !== "production" ? "http://localhost:5000" : ""; 
-
 
 class Create extends Component {
   constructor(props) {
@@ -31,6 +28,7 @@ class Create extends Component {
       const body = await response.text();
       this.setState({ responseToPost: body });
       this.props.history.push('/');
+    
     };
 
 
@@ -43,17 +41,16 @@ render() {
     <div class="container">
         <div class="panel-body">
           <br />
-   
               <form onSubmit={this.handleSubmit}>
               <br />
                 <div class="form-group">
                 <h5>Title</h5>
-                  <textArea class="form-control" name="title"  value={this.state.post} onChange={e => this.setState({ post: e.target.value })}
+                  <textArea class="form-control" required="required" minLength="1" name="title"  value={this.state.post} onChange={e => this.setState({ post: e.target.value })}
                   placeholder="Title" cols="80" rows="1">{title}</textArea>
                 </div>
                 <div class="form-group">
                 <h5>Description</h5>
-                  <textArea class="form-control" name="Description"  value={this.state.description} onChange={e => this.setState({ description: e.target.value })}
+                  <textArea class="form-control" required="required" minLength="1" name="Description"  value={this.state.description} onChange={e => this.setState({ description: e.target.value })}
                   placeholder="Post" cols="80" rows="3">{description}</textArea>
                 </div>
                 <button type="submit" class="btn btn-success" >Post</button>

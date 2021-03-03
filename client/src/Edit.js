@@ -34,28 +34,25 @@ class Edit extends Component {
  
   render() {
     return (
-  <div class="contain">
-  <div class="container">
-        <div class="panel panel-default">
-          <div class="panel-heading">
-          <br />
-            <h4 class="panel-title">
-              EDIT COMMENT
-            </h4>
-            <br/>
-          </div>
-          <div class="panel-body">
-            <form onSubmit={this.commentSubmit}>
+        <div class="contain">
+        <div class="container">
+            
+              <br/>
+                <div class="panel-heading">
+                <h5>Edit Comment</h5>
+                  <br/>
+                </div>
+ 
+                <form onSubmit={this.commentSubmit}>
               <div class="form-group">
-                <textArea type="text" class="form-control" name="description" value={this.state.post} onChange={e => this.setState({ post: e.target.value })} 
+                <textArea type="text" class="form-control" required="required" minLength="1" name="description" value={this.state.post} onChange={e => this.setState({ post: e.target.value })} 
                 placeholder="Edit" />
               </div>
-              <button type="submit" class="btn btn-success">Edit</button>
+              <button type="submit" class="btn btn-primary">Edit</button>
             </form>
-          </div>
-        </div>
-      </div>
-      </div>
+  
+            </div>
+            </div>
     );
   }
 }
