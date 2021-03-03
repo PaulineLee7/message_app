@@ -1,121 +1,95 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import { withRouter } from "react-router";
+import "bootstrap/dist/css/bootstrap.css";
+import './App.css'
+
 
 class Read extends Component {
 
-    constructor(props) {
-        super(props);
-        this.state = {
-          post: {},
-          key: '',
-          response: '',
-          title: '',
-          responseToPost: '',
-          upVotes: '',
-          posts: [],
-          id: this.props.match.params.id,
-        };
-      }
-      onChange = (e) => {
-        const state = this.state
-        state[e.target.name] = e.target.value;
-        this.setState(state);
-      }
+  constructor(props) {
+    super(props);
+    this.state = {
+      post: {},
+      key: '',
+      response: '',
+      title: '',
+      responseToPost: '',
+      upVotes: '',
+      posts: [],
+      user: '',
+      creator: '',
+      comment: '',
+      id: this.props.match.params.id,
+    };
+  }
       
-      componentDidMount() {
+  componentDidMount() {
         
-        var id = this.state.id
-        this.commentApi();
-          fetch('/api/readpost/'+ id)
-          .then(res => res.json())
-          .then(
-            (result) => {
-              this.setState({
-                key: result.id,
-                post: result,
-                upVotes: result.upVotes,
-                isLoading: false
-              }); //console.log(result.comment);
-            },
-            (error) => {
-              this.setState({
-                error
-              });
-            }
-          )
-         }
-  
-        commentApi = async () => {
-        var id = this.state.id
-
-        await fetch('/Read/' + id + '/' + id)
-        .then(res => res.json())
-          .then(
-            (result) => {
-              this.setState({
-                posts: result,
-                key: result.id,
-                title: result.title,
-                comment: result.comment,
-                isLoading: false
-              }); 
-            },
+  var id = this.state.id
+  var previd= window.location.pathname.split('/')[3]
+  fetch('/ReadComment/' + id +'/'+ previd)
+    .then(res => res.json())
+    .then(
+      (result) => {
+          this.setState({
+          key: result.id,
+          post: result,
+          comment: result.comment,
+          upVotes: result.upVotes,
+          isLoading: false
+          }); console.log(result)
+        },
             (error) => {
               this.setState({
                 error
               });
             });
-         };
-      
+   };
+        
 
-      deleteSubmit = async e => {
-        var id = this.state.id
+        deleteComment = async e => {
+          var id = this.state.id
+          var previd= window.location.pathname.split('/')[3]
+          e.preventDefault();
+          const response = await fetch('/delete/comment/' + id +'/' + previd,{ 
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ post: this.state.post }),
+          }).catch((error)=>{
+              console.error("Error deleting", error);
+      }); 
+      const body = await response.text();
+      this.setState({ responseToPost: body });
+      this.props.history.goBack();
+      }
 
-        e.preventDefault();
-        const response = await fetch('/api/delete/' + id, { 
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }).catch((error)=>{
-            console.error("Error deleting", error);
-    });
-    }
   
+
     render() {
+      
       return (
+        <div class="contain">
         <div class="container">
-          <div class="panel panel-default">
-            <div class="panel-heading">
-            <br/>
-            <h3><Link to="/">HOME </Link></h3>
+            
+              <br/>
+                <div class="panel-heading">
+                <h5>Delete Comment?</h5>
+                  <br/>
+                </div>
+                  <div class="card">
+                  {this.state.comment}
+                  </div>
+                  <br/>
+                  <form onSubmit={this.deleteComment}>
+                  <button type="submit" class="btn btn-danger" >Delete</button>
+                  <br/>
+                  </form>
             </div>
-            <br />
-            <div class="panel-body">
-              <dl>
-                <br />
-                <table class="table table-stripe">
-                <dt>Comments:</dt>
-                <tbody>
-                 {this.state.posts.map(post =>
-                  <tr>
-                    <td>{post.comment}</td>
-                  </tr>
-                )} 
-              </tbody>
-              </table>
-                <br/>
-              </dl>
-            <form onSubmit={this.deleteSubmit}>
-            <br/>
-            <button type="submit" class="btn btn-danger">Delete</button>
-            </form>
             </div>
-          </div>
-        </div>
+             
       );
     }
   }
-   
+ 
   export default Read;

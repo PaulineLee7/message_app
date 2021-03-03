@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import "bootstrap/dist/css/bootstrap.css";
-import ReactDOM from 'react-dom';
 import { Link } from 'react-router-dom';
 import './App.css'
-const LOCAL_ENDPOINT = process.env.NODE_ENV !== "production" ? "http://localhost:5000" : ""; 
- 
+// import ReactGA from 'react-ga';
+// const TRACKING_ID = ""; // YOUR_OWN_TRACKING_ID
+// ReactGA.initialize(TRACKING_ID);
+
 class App extends Component {
   constructor(props){
     super(props);
@@ -15,6 +16,7 @@ class App extends Component {
     comment: '',
     upVotes: '',
     user:'',
+    creator: '',
     posts: [],
   };
 }
@@ -31,6 +33,8 @@ class App extends Component {
             title: result.title,
             comment: result.comment,
             upVotes: result.upVotes,
+            description: result.description,
+            creator: result.creator,
             isLoading: false
           });
         },
@@ -44,25 +48,19 @@ class App extends Component {
 
   render() {
     return (
-     
-      <div class="contain">
-      <div class="container">
-          <table class="table table-stripe">
-              <thead>
-                <tr>
-                  <th>Posts</th>
-                </tr>
-              </thead>
-              <tbody>
+     <div class= "card">
+
                  {this.state.posts.map(post =>
-                  <tr>
-                    <td><Link to={`/Show/${post.key}`}style={{ color: 'black', textDecoration:'none'}}>{post.title}</Link></td>
-                  </tr>
+                  <div class= "card">
+                  <div class="card-header"><Link to={`/Show/${post.key}`} style={{ color: 'black', textDecoration:'none', }} class="font-weight-bold">{post.title}</Link></div>
+                  <div class="card-body">
+                  {post.description}
+                  </div>
+                  </div>
+                  
                 )} 
-              </tbody>
-            </table>
-        </div>
-      </div>
+                <div class="card-footer"> </div>
+    </div>
     );
   }
 }
