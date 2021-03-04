@@ -47,7 +47,7 @@ class Comment extends Component {
                   <br/>
                     <textArea type="text" class="form-control" required="required" minLength="1" name="description" value={this.state.comment} onChange={e => this.setState({ post: e.target.value })} placeholder="Comment" />
                   </div>
-                  <button type="submit" class="btn btn-primary">Post Comment</button>
+                  <button type="submit" class="btn btn-dark">Post Comment</button>
                 </form>
               </div>
             </div>

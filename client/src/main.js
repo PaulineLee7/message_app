@@ -11,7 +11,8 @@ import Show from './Show';
 import Comment from './Comment';
 import Read from './Read';
 import Edit from './Edit'
-
+require('dotenv').config();
+//const REACT_APP_PORT = process.env.REACT_APP_PORTS;
 const LOCAL_ENDPOINT = process.env.NODE_ENV !== "production" ? "http://localhost:5000" : "";
 
 class Main extends Component {  
@@ -37,7 +38,7 @@ class Main extends Component {
       renderNav = () =>{
          if(this.state.user.user){
         return <nav class="navbar navbar-dark bg-dark">
-         <a class="navbar-brand" href="http://localhost:3000">Message Board</a>
+         <a class="navbar-brand" href= {process.env.REACT_APP_PORTS} >Message Board</a>
          <ul class="nav justify-content-end">
          <li class="nav-item"><Link to={`/Create`} class="nav-link active" > New Post </Link></li>
          <li class="nav-item"><a class="navbar-brand" href={LOCAL_ENDPOINT + "/logout"} class="nav-link active"> Logout </a> </li>
@@ -46,7 +47,7 @@ class Main extends Component {
       }
    else{
         return <nav class="navbar navbar-dark bg-dark">
-        <a class="navbar-brand" href="http://localhost:3000">Message Board</a>
+        <a class="navbar-brand" href= {process.env.REACT_APP_PORTS} >Message Board</a>
         <ul class="nav justify-content-end">
         <li class="nav-item"><a class="navbar-brand" href={LOCAL_ENDPOINT + "/login"}  class="nav-link active"> Login </a> </li>
         </ul>

@@ -39,7 +39,7 @@ class Show extends Component {
                 upVotes: result.upVotes,
                 description: result.description,
                 isLoading: false
-              }); console.log(result)
+              }); 
             },
             (error) => {
               this.setState({
