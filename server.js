@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "build")));
+app.use(express.static(path.join(__dirname, "/client/build")));
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
@@ -266,7 +266,7 @@ app.delete('/delete/comment/:id/:commentid', async (req, res) => {
 
 
 app.get('/login', (req,res)=> {
-    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signInGate?response_type=code&locale=en&countryCode=US&client_id=3694457r8f&redirect_uri=http://localhost:5000/callback&state=CUSTOM_TOKEN&goBackURL=http://localhost:3000`);
+    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signInGate?response_type=code&locale=en&countryCode=US&client_id=3694457r8f&redirect_uri=http://localhost:${process.env.PORT}/callback&state=CUSTOM_TOKEN&goBackURL=http://localhost:3000`);
 });  
     
 app.get('/callback', (req, res)=>{
@@ -356,14 +356,14 @@ app.get('/callback', (req, res)=>{
 
 app.get('/logout', (req,res)=> {
     res.clearCookie('token');
-    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signOutGate?client_id=3694457r8f&state=CUSTOM_TOKEN&signOutURL=http://localhost:3000/`);
+    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signOutGate?client_id=3694457r8f&state=CUSTOM_TOKEN&signOutURL=http://localhost:${process.env.PORT}`);
 }); 
 
+app.get(`/*`, function(req, res) {
+    res.sendFile(path.join(__dirname, "/client/build", "index.html"));
+});
 
 app.listen(port, (req,res)=>{
     console.info(`Running on ${port}`);
 });
 
-app.get(`/*`, function(req, res) {
-    res.sendFile(path.join(__dirname, "build", "index.html"));
-});
