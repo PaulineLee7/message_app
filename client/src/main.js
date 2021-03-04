@@ -12,8 +12,9 @@ import Comment from './Comment';
 import Read from './Read';
 import Edit from './Edit'
 import RouteChangeTracker from './RouteChangeTracker';
-require('dotenv').config();
 import ReactGA from 'react-ga';
+
+require('dotenv').config();
 ReactGA.initialize(process.env.REACT_APP_TRACKING_ID);
 
 const LOCAL_ENDPOINT = process.env.NODE_ENV !== "production" ? "http://localhost:5000" : "";
