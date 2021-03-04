@@ -266,7 +266,7 @@ app.delete('/delete/comment/:id/:commentid', async (req, res) => {
 
 
 app.get('/login', (req,res)=> {
-    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signInGate?response_type=code&locale=en&countryCode=US&client_id=3694457r8f&redirect_uri=http://localhost:${process.env.PORT}/callback&state=CUSTOM_TOKEN&goBackURL=http://localhost:3000`);
+    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signInGate?response_type=code&locale=en&countryCode=US&client_id=3694457r8f&redirect_uri=${process.env.URL}/callback&state=CUSTOM_TOKEN&goBackURL=${process.env.URL}`);
 });  
     
 app.get('/callback', (req, res)=>{
@@ -356,7 +356,7 @@ app.get('/callback', (req, res)=>{
 
 app.get('/logout', (req,res)=> {
     res.clearCookie('token');
-    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signOutGate?client_id=3694457r8f&state=CUSTOM_TOKEN&signOutURL=http://localhost:${process.env.PORT}`);
+    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signOutGate?client_id=3694457r8f&state=CUSTOM_TOKEN&signOutURL=${process.env.URL}`);
 }); 
 
 app.get(`/*`, function(req, res) {
