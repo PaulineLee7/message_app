@@ -266,7 +266,7 @@ app.delete('/delete/comment/:id/:commentid', async (req, res) => {
 
 
 app.get('/login', (req,res)=> {
-    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signInGate?response_type=code&locale=en&countryCode=US&client_id=3694457r8f&redirect_uri=${process.env.URL}/callback&state=CUSTOM_TOKEN&goBackURL=${process.env.REDIRECT}`);
+    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signInGate?response_type=code&locale=en&countryCode=US&client_id=3694457r8f&redirect_uri=http://${process.env.URL}/callback&state=CUSTOM_TOKEN&goBackURL=http://${process.env.URL}`);
 });  
     
 app.get('/callback', (req, res)=>{
