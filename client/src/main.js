@@ -15,7 +15,8 @@ import RouteChangeTracker from './RouteChangeTracker';
 import ReactGA from 'react-ga'; 
 
 require('dotenv').config();
-ReactGA.initialize(process.env.REACT_APP_TRACKING_ID);
+ReactGA.initialize(`${process.env.REACT_APP_TRACKING_ID}`);
+ReactGA.pageview(window.location.pathname + window.location.search);
 
 const LOCAL_ENDPOINT = process.env.NODE_ENV !== "production" ? "http://localhost:5000" : "";
 
