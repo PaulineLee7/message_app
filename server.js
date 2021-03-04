@@ -356,7 +356,7 @@ app.get('/callback', (req, res)=>{
 
 app.get('/logout', (req,res)=> {
     res.clearCookie('token');
-    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signOutGate?client_id=3694457r8f&state=CUSTOM_TOKEN&signOutURL=${process.env.URL}`);
+    res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signOutGate?client_id=3694457r8f&state=CUSTOM_TOKEN&signOutURL=http://${process.env.URL}`);
 }); 
 
 app.get(`/*`, function(req, res) {
