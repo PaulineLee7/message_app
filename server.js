@@ -53,8 +53,7 @@ app.get('/userInfo', function(req, res) {
        res.json(userInfo);
        
     } else {
-      console.log("Not Logged on");
-    }
+        res.status(200).send('Not Logged in.');    }
 });
 
 //create a new post
@@ -264,10 +263,9 @@ app.delete('/delete/comment/:id/:commentid', async (req, res) => {
     }
 });
 
-
 app.get('/login', (req,res)=> {
     res.status(301).redirect(`https://stg-account.samsung.com/accounts/v1/STWS/signInGate?response_type=code&locale=en&countryCode=US&client_id=3694457r8f&redirect_uri=http://${process.env.URL}/callback&state=CUSTOM_TOKEN&goBackURL=http://${process.env.URL}`);
-});  
+}); 
     
 app.get('/callback', (req, res)=>{
     var options = {
