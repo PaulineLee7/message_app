@@ -2,9 +2,6 @@ import React, { Component } from 'react';
 import "bootstrap/dist/css/bootstrap.css";
 import { Link } from 'react-router-dom';
 import './App.css'
-// import ReactGA from 'react-ga';
-// const TRACKING_ID = ""; // YOUR_OWN_TRACKING_ID
-// ReactGA.initialize(TRACKING_ID);
 
 class App extends Component {
   constructor(props){
@@ -56,6 +53,8 @@ class App extends Component {
                   <div class="card-body">
                   {post.description}
                   </div>
+                  <p style={{paddingLeft: 5, fontSize: 10, fontWeight: 10}} >  Created by: {post.creator}</p>
+                
                   </div>
                   
                 )} 
